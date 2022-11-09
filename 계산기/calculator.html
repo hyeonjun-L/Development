@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>계산기</title>
+  <meta charset="utf-8">
+</head>
+
+<body>
+  <h1>Calculator</h1>
+  <strong>
+    <p>계산식을 입력해 주십시오(예시: 1+2 | 종료 : exit)</p>
+  </strong>
+  <p>* 소수점 둘째자리 까지 계산 됩니다.</p>
+  <form name="fr">
+    <input type="text" id="num">
+    <input type="button" value="확인" onclick="Main()">
+  </form>
+  <strong>
+    <p id="answer"></p>
+  </strong>
+
+  <script>
+    function Main() {
+      var nums = document.getElementById("num").value
+      if(nums === 'exit') window.alert('종료')
+      else
+      {
+      nums = nums.replace(/\s/g,'').match(/\d+|\D/g)
+      nums = MultAndDiv(nums)
+      nums = AddAndSub(nums)
+      PrintAnswer(nums.join())
+      }
+    }
+
+    function Calculation(nums, index, operator) {
+      switch (operator) {
+        case '+':
+          return [Number(nums[0]) + Number(nums[2])]
+        case '-':
+          return [Number(nums[0]) - Number(nums[2])]
+        case '*':
+          return [nums[index - 1] * nums[index + 1], index]
+        case '/':
+          return [(nums[index - 1] / nums[index + 1]).toFixed(2), index]
+      }
+    }
+
+    function MultAndDiv(nums) {
+      const Count = nums.filter((operator) => '*' === operator || '/' === operator).length // 연산자 개수
+      for (let i = 0; i < Count; i++) {
+        const multIndex = nums.indexOf('*')
+        const divIndex = nums.indexOf('/')
+        if (multIndex === -1) // '*' 연산자 존재 x
+        {
+          const [value, index] = Calculation(nums, divIndex, '/')
+          nums[index - 1] = value
+          nums.splice(index, 2)
+        }
+        else if (divIndex === -1) // '/' 연산자 존재 x
+        {
+          const [value, index] = Calculation(nums, multIndex, '*')
+          nums[index - 1] = value
+          nums.splice(index, 2)
+        }
+        else {
+          const [value, index] = multIndex > divIndex ? Calculation(nums, divIndex, '/') : Calculation(nums, multIndex, '*')
+          nums[index - 1] = value
+          nums.splice(index, 2)
+        }
+      }
+      return nums
+    }
+
+    function AddAndSub(nums) {
+      const len = Math.floor(nums.length / 2)
+      for (let i = 0; i < len; i++) {
+        const [value] = Calculation(nums, NaN, nums[1])
+        nums[0] = value
+        nums.splice(1, 2)
+      }
+      return nums
+    }
+
+    function PrintAnswer(msg) {
+      var answer = document.getElementById("answer")
+      answer.innerHTML = msg
+    }
+  </script>
+
+</body>
+</html>
